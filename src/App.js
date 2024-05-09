@@ -52,7 +52,6 @@ function App() {
       axios.post(`${APIHOST}/update_previous_sheet`, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          // other headers
         }
       })
       .then(res => {
