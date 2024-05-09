@@ -49,7 +49,11 @@ function App() {
     }else if(clicked === 'dataUpdate'){
 
       setIsLoader(prevIsLoader => !prevIsLoader);
-      axios.post(`${APIHOST}/update_previous_sheet`)
+      axios.post(`${APIHOST}/update_previous_sheet`, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        }
+      })
       .then(res => {
         setStatusMessage(res.data.status)
         setIsLoader(prevIsLoader => !prevIsLoader);
