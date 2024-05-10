@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {PRODAPIHOST as APIHOST, LOCALAPIHOSY} from './constant'
+import {PRODAPIHOST as APIHOST} from './constant'
 
 function App() {
 
