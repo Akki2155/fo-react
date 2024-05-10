@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {APIHOST} from './constant'
+import {PRODAPIHOST as APIHOST, LOCALAPIHOSY} from './constant'
 
 function App() {
 
@@ -12,59 +12,87 @@ function App() {
   const [isRefresh, setIsRefresh] = useState(false)
 
   useEffect(() => {
-    const fetchStatus = async () => {
       setIsLoader(prevIsLoader => !prevIsLoader);
-      const res = await axios.get(`${APIHOST}/get_status`);
-      if(res.data.status){
-        setStatusMessage('Process is Running')
-      }else{
-        setStatusMessage('Process is not Running')
-      } 
-      setStatus(res.data.status);
-      setIsLoader(prevIsLoader => !prevIsLoader);
-    };
-  
-    fetchStatus();
+      axios.get(`${APIHOST}/get_status`).then(res => {
+        if(res.data.status){
+          setStatusMessage('Process is Running')
+        }else{
+          setStatusMessage('Process is not Running')
+        }
+        setIsLoader(prevIsLoader => !prevIsLoader);
+        setStatus(res.data.status);
+      }).catch(err => {
+          console.error(err);
+          setStatusMessage(err.response.data.status)
+          setIsLoader(prevIsLoader => !prevIsLoader);
+          setIsRefresh(true);
+      });
   }, [])
   
   useEffect(() => {
-    if(clicked === 'start' || clicked === 'stop'){
-      const payload = new URLSearchParams();
-      payload.append('status', clicked === 'start');
-      setIsLoader(prevIsLoader => !prevIsLoader);
-      axios.post(`${APIHOST}/update_status`, payload)
-      .then(res => {
-        setStatusMessage(res.data.status)
-        if(res.data.status === 'Process started.'){
-          setStatus(true)
-        }else if(res.data.status === 'Process stopped.'){
-          setStatus(false)
-        }
-        setIsLoader(prevIsLoader => !prevIsLoader);
-        return res.data
-      })
-      .catch(err => {
-        setIsLoader(prevIsLoader => !prevIsLoader);
-      });
-    }else if(clicked === 'dataUpdate'){
 
-      setIsLoader(prevIsLoader => !prevIsLoader);
-      axios.post(`${APIHOST}/update_previous_sheet`, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        }
-      })
-      .then(res => {
-        setStatusMessage(res.data.status)
-        setIsLoader(prevIsLoader => !prevIsLoader);
-        return res.data
-      }).catch(err => {
-        console.error(err);
-        setStatusMessage(err.response.data.status)
-        setIsLoader(prevIsLoader => !prevIsLoader);
-        setIsRefresh(true);
-      });
+    switch(clicked){
+      case 'start':
+      case 'stop':
 
+        const payload = new URLSearchParams();
+        payload.append('status', clicked === 'start');
+        setIsLoader(prevIsLoader => !prevIsLoader);
+        axios.post(`${APIHOST}/update_status`, payload)
+        .then(res => {
+          setStatusMessage(res.data.status)
+          if(res.data.status === 'Process started.'){
+            setStatus(true)
+          }else if(res.data.status === 'Process stopped.'){
+            setStatus(false)
+          }
+          setIsLoader(prevIsLoader => !prevIsLoader);
+          return res.data
+        })
+        .catch(err => {
+          console.error(err);
+          setStatusMessage(err.response.data.status)
+          setIsLoader(prevIsLoader => !prevIsLoader);
+          setIsRefresh(true);
+        });
+        break;
+
+      case 'dataUpdate':  
+
+        setIsLoader(prevIsLoader => !prevIsLoader);
+        axios.post(`${APIHOST}/update_previous_sheet`, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          }
+        })
+        .then(res => {
+          setStatusMessage(res.data.status)
+          setIsLoader(prevIsLoader => !prevIsLoader);
+          return res.data
+        }).catch(err => {
+          console.error(err);
+          setStatusMessage(err.response.data.status)
+          setIsLoader(prevIsLoader => !prevIsLoader);
+          setIsRefresh(true);
+        });
+        break;
+
+      case 'clearHistory':
+        setIsLoader(prevIsLoader => !prevIsLoader);
+        axios.post(`${APIHOST}/clear_history_log`).then(res => {
+            setStatusMessage(res.data.status)
+            setIsLoader(prevIsLoader => !prevIsLoader);
+            setIsRefresh(true);
+          }).catch(err => {
+            setStatusMessage(err.response.data.status)
+            setIsLoader(prevIsLoader => !prevIsLoader);
+            setIsRefresh(true);
+          })
+        break
+
+      default:
+        console.log('default');
+        break;  
     }
   },[clicked])
 
@@ -102,6 +130,7 @@ function App() {
                 </div>
                 <div className='btnWrapper'>
                   <button className='btn' name='dataUpdate' onClick={btnClick}>Update R1 and S1 Data</button>
+                  <button className='btn' name='clearHistory' onClick={btnClick}>Clear history log</button>
                 </div>
               </div>
             </>
