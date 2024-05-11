@@ -77,19 +77,6 @@ function App() {
         });
         break;
 
-      case 'clearHistory':
-        setIsLoader(prevIsLoader => !prevIsLoader);
-        axios.post(`${APIHOST}/clear_history_log`).then(res => {
-            setStatusMessage(res.data.status)
-            setIsLoader(prevIsLoader => !prevIsLoader);
-            setIsRefresh(true);
-          }).catch(err => {
-            setStatusMessage(err.response.data.status)
-            setIsLoader(prevIsLoader => !prevIsLoader);
-            setIsRefresh(true);
-          })
-        break
-
       default:
         console.log('default');
         break;  
@@ -130,7 +117,6 @@ function App() {
                 </div>
                 <div className='btnWrapper'>
                   <button className='btn' name='dataUpdate' onClick={btnClick}>Update R1 and S1 Data</button>
-                  <button className='btn' name='clearHistory' onClick={btnClick}>Clear history log</button>
                 </div>
               </div>
             </>
